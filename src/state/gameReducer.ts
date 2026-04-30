@@ -233,7 +233,7 @@ function stepAgent(state: GameState): GameState {
   }
 
   // 2. ASK about all frontier cells that aren't already proven
-  for (const [key, adj] of frontier.entries()) {
+  for (const adj of frontier.values()) {
     const meta = getMeta(newCellMeta, adj);
     if (meta.safeProven || meta.dangerProven) continue;
 
@@ -259,7 +259,7 @@ function stepAgent(state: GameState): GameState {
 
   // 3. Find all unvisited safe cells
   const safeUnvisited: Position[] = [];
-  for (const [key, adj] of frontier.entries()) {
+  for (const adj of frontier.values()) {
     const meta = getMeta(newCellMeta, adj);
     if (meta.safeProven && !meta.visited) {
       safeUnvisited.push(adj);

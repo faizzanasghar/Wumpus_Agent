@@ -1,6 +1,6 @@
 // App.tsx — Modern 3-Column Layout
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { GameProvider, useGame } from './state/GameContext';
 import { Grid } from './components/Grid/Grid';
 import { Dashboard } from './components/Dashboard/Dashboard';
