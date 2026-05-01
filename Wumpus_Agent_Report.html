@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wumpus Logic Agent: Comprehensive Technical Report</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 2.2em;
+      border-bottom: 2px solid #eaecef;
+      padding-bottom: 0.3em;
+      color: #111;
+    }
+
+    h2 {
+      font-size: 1.5em;
+      border-bottom: 1px solid #eaecef;
+      padding-bottom: 0.3em;
+      margin-top: 1.5em;
+      color: #222;
+    }
+
+    h3 {
+      font-size: 1.25em;
+      margin-top: 1.2em;
+      color: #333;
+    }
+
+    p {
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+
+    ul {
+      margin-top: 0;
+      margin-bottom: 16px;
+      padding-left: 2em;
+    }
+
+    li {
+      margin-bottom: 0.25em;
+    }
+
+    code {
+      font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+      background-color: rgba(27, 31, 35, 0.05);
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-size: 85%;
+    }
+
+    .links {
+      background: #f6f8fa;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      border: 1px solid #d1d5da;
+    }
+
+    .links a {
+      color: #0366d6;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .links a:hover {
+      text-decoration: underline;
+    }
+
+    .author-info {
+      margin-bottom: 10px;
+    }
+
+    @media print {
+      body {
+        padding: 0;
+        color: #000;
+      }
+
+      .no-print {
+        display: none;
+      }
+    }
+
+    .print-btn {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .print-btn:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+
+<body>
+
+  <button class="no-print print-btn" onclick="window.print()">Save as PDF</button>
+
+  <h1>Wumpus Logic Agent: Comprehensive Technical Report</h1>
+
+  <div class="links">
+    <div class="author-info"><strong>Author:</strong> Muhammad Faizan Asghar</div>
+    <div class="author-info"><strong>GitHub:</strong> <a
+        href="[GitHub Link]">https://github.com/faizzanasghar/Wumpus_Agent</a></div>
+    <div class="author-info"><strong>Vercel/Live URL:</strong> <a
+        href="[Vercel Link]">https://wumpus-agent-blue.vercel.app/</a></div>
+    <div class="author-info"><strong>LinkedIn:</strong> <a
+        href="[LinkedIn Link]">https://www.linkedin.com/feed/update/urn:li:activity:7455917713144651776/</a></div>
+  </div>
+
+  <h2>1. Introduction</h2>
+  <p>This report details the underlying Knowledge-Based Agent (KBA) architecture developed for the Wumpus World
+    simulation. Unlike heuristic-based agents that rely on simple if-then rules, this agent uses a <strong>Propositional
+      Logic Engine</strong>. It mathematically proves the safety of adjacent cells before making any move by utilizing
+    <strong>Conjunctive Normal Form (CNF)</strong> conversions and <strong>Resolution Refutation</strong>.</p>
+  <p>The entire logic engine operates strictly on formal propositional logic to deduce whether cells contain a Pit, a
+    Wumpus, or are completely safe.</p>
+
+  <h2>2. Conjunctive Normal Form (CNF) Logic</h2>
+  <p>When the agent explores a new cell, it receives a percept (e.g., Breeze, Stench, Safe). The agent translates this
+    environmental knowledge into propositional logic statements and tells its Knowledge Base (KB).</p>
+  <p>To perform logical inference, all rules must be expressed in <strong>Conjunctive Normal Form (CNF)</strong>—a
+    conjunction (AND) of clauses, where each clause is a disjunction (OR) of literals.</p>
+
+  <h3>Percept Encoding Example: Breeze</h3>
+  <p>If the agent perceives a Breeze (<code>B</code>) at coordinate <code>[2,1]</code>, the rules of the Wumpus World
+    state that there must be a Pit (<code>P</code>) in at least one of the adjacent cells: <code>[1,1]</code>,
+    <code>[2,2]</code>, or <code>[3,1]</code>.</p>
+  <p>The biconditional relationship is:<br>
+    <code>B_2_1 ⇔ (P_1_1 ∨ P_2_2 ∨ P_3_1)</code>
+  </p>
+  <p>The logic engine splits this into two directional implications for CNF:</p>
+
+  <p><strong>1. Forward Implication:</strong> If there is a breeze, there is a pit adjacent.<br>
+    <code>B_2_1 ⇒ (P_1_1 ∨ P_2_2 ∨ P_3_1)</code><br>
+    <strong>CNF Clause:</strong> <code>(¬B_2_1 ∨ P_1_1 ∨ P_2_2 ∨ P_3_1)</code>
+  </p>
+
+  <p><strong>2. Backward Implication:</strong> If there is a pit adjacent, there is a breeze.<br>
+    <code>(P_1_1 ∨ P_2_2 ∨ P_3_1) ⇒ B_2_1</code><br>
+    Which is broken down into individual clauses for each adjacent pit candidate:
+  </p>
+  <ul>
+    <li><code>(¬P_1_1 ∨ B_2_1)</code></li>
+    <li><code>(¬P_2_2 ∨ B_2_1)</code></li>
+    <li><code>(¬P_3_1 ∨ B_2_1)</code></li>
+  </ul>
+
+  <p>Along with the forward and backward clauses, the agent asserts the unit clause <code>B_2_1</code> (indicating the
+    breeze is actually present), adding it to the KB.</p>
+
+  <h3>Negative Percepts</h3>
+  <p>If the agent does <em>not</em> perceive a breeze at <code>[2,1]</code>, it asserts the negative unit clause
+    <code>¬B_2_1</code>. In our CNF generator, this directly translates into an assertion that <em>none</em> of the
+    adjacent cells can have a pit:</p>
+  <ul>
+    <li><code>¬P_1_1</code></li>
+    <li><code>¬P_2_2</code></li>
+    <li><code>¬P_3_1</code></li>
+  </ul>
+
+  <p>This immediate elimination of candidates drastically reduces the search space for the resolution engine. The exact
+    same logic is applied for the <strong>Stench (<code>S</code>)</strong> and <strong>Wumpus (<code>W</code>)</strong>
+    percepts.</p>
+
+  <h2>3. Resolution Refutation Loop</h2>
+  <p>Once the KB is populated with CNF clauses, the agent uses an algorithm called <strong>Resolution
+      Refutation</strong> to determine if a specific unvisited cell (e.g., <code>[2,2]</code>) is safe. A cell is
+    considered safe if the agent can prove there is no pit (<code>¬P_2_2</code>) and no wumpus (<code>¬W_2_2</code>).
+  </p>
+
+  <p>The inference loop operates as follows:</p>
+
+  <ol>
+    <li><strong>Proof by Contradiction (Refutation):</strong><br>
+      To prove a goal (e.g., <code>¬P_2_2</code>), the engine temporarily adds the <strong>negation of the goal</strong>
+      to the Knowledge Base. In this case, it adds the literal <code>P_2_2</code> as a new unit clause.</li>
+
+    <li><strong>Resolving Clause Pairs:</strong><br>
+      The loop systematically pairs up clauses from the KB. It looks for pairs where one clause contains a literal
+      (e.g., <code>P_2_2</code>) and the other clause contains its exact complement (<code>¬P_2_2</code>).</li>
+
+    <li><strong>Generating Resolvents:</strong><br>
+      When a complementary pair is found, the two clauses are merged, and the complementary literals are cancelled
+      out.<br>
+      <em>Example:</em> Resolving <code>(¬P_2_2 ∨ B_2_1)</code> with <code>P_2_2</code> yields the new resolvent clause
+      <code>B_2_1</code>.
+    </li>
+
+    <li><strong>Tautology Filtering:</strong><br>
+      If a generated resolvent contains both a literal and its negation (e.g., <code>A ∨ ¬A</code>), it is considered a
+      tautology. Tautologies provide no new logical constraints and are immediately discarded to keep the inference
+      trace optimized.</li>
+
+    <li><strong>Contradiction Detection:</strong><br>
+      The loop continues adding new resolvents back into the working set. If the engine resolves two unit clauses that
+      are exact opposites (e.g., <code>P_2_2</code> and <code>¬P_2_2</code>), the resulting resolvent is the
+      <strong>empty clause (<code>{}</code>)</strong>.<br>
+      Generating the empty clause signals a logical <strong>contradiction</strong>.</li>
+
+    <li><strong>Conclusion:</strong><br>
+      Because assuming the negation of the goal (<code>P_2_2</code>) led to a contradiction, the original goal
+      (<code>¬P_2_2</code>) is <strong>PROVED TRUE</strong>. The cell <code>[2,2]</code> is mathematically proven to not
+      contain a pit.</li>
+  </ol>
+
+  <p>If the loop generates all possible resolvents without ever producing an empty clause, the proof fails. The agent
+    concludes that it does not have enough information to guarantee the cell is safe, and it will not risk moving there.
+  </p>
+
+  <h2>4. Agent Pathfinding Integration</h2>
+  <p>The pure logic engine informs the movement policy of the agent. The system operates on a rigorous cycle:</p>
+  <ol>
+    <li><strong>Perceive:</strong> Read the current cell for Breeze/Stench.</li>
+    <li><strong>Update KB:</strong> Convert percepts to CNF clauses and add to the set.</li>
+    <li><strong>Reason:</strong> Iterate over all frontier (unvisited) cells. Run the Resolution Refutation algorithm to
+      ask the KB: "Is <code>¬P_x_y</code> AND <code>¬W_x_y</code> true?"</li>
+    <li><strong>Act:</strong> Select a confirmed safe cell and navigate to it. If the cell is distant, the agent uses
+      Breadth-First Search (BFS) to plot a safe path exclusively through previously visited cells.</li>
+  </ol>
+
+  <p>This deterministic, logic-first architecture guarantees that the Wumpus Agent will never die unless forced to guess
+    in an unsolvable layout, representing a robust implementation of classical AI methodologies.</p>
+
+</body>
+
+</html>
